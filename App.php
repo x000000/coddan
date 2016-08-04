@@ -75,34 +75,38 @@ class App
 	private function getDataProvider($sort)
 	{
 		$sql = <<< SQL
-			SELECT * FROM (
-				SELECT
-					`Continent`,
-					`Region`,
-					COUNT(*) AS `Countries`,
-					AVG(`LifeExpectancy`) AS `LifeExpectancy`,
-					SUM(`Population`) AS `Population`,
-					`Cities`,
-					`Languages`
-				FROM `Country` `s`
+			SELECT
+				`Continent`,
+				`Region`,
+				COUNT(*) AS `Countries`,
+				AVG(`LifeExpectancy`) AS `LifeExpectancy`,
+				SUM(`Population`) AS `Population`,
+				`Cities`,
+				`Languages`
+			FROM `Country` `s`
 
-				LEFT JOIN (
-					SELECT COUNT(*) AS `Cities`, `CountryCode`
-					FROM `City`
-					GROUP BY `CountryCode`
-				) `c` ON (`c`.`CountryCode` = `s`.`Code`)
+			LEFT JOIN (
+				SELECT COUNT(*) AS `Cities`, `CountryCode`
+				FROM `City`
+				GROUP BY `CountryCode`
+			) `c` ON (`c`.`CountryCode` = `s`.`Code`)
 
-				LEFT JOIN (
-					SELECT COUNT(*) AS `Languages`, `CountryCode`
-					FROM `CountryLanguage`
-					GROUP BY `CountryCode`
-				) `l` ON (`l`.`CountryCode` = `s`.`Code`)
+			LEFT JOIN (
+				SELECT COUNT(*) AS `Languages`, `CountryCode`
+				FROM `CountryLanguage`
+				GROUP BY `CountryCode`
+			) `l` ON (`l`.`CountryCode` = `s`.`Code`)
 
-				GROUP BY `Continent`, `Region`
-			) `t` ORDER BY `$sort[0]` $sort[1];
+			GROUP BY `Continent`, `Region`
 SQL;
 
-		return $this->_db->fetchAll($sql);
+		if ($sort[0] === 'Continent') {
+			$sort[0] = "TRIM(`$sort[0]`)"; // force enum column to sort alphabetically
+		} else {
+			$sort[0] = "`$sort[0]`";
+		}
+
+		return $this->_db->fetchAll("SELECT * FROM ($sql) `t` ORDER BY $sort[0] $sort[1]");
 	}
 
 	public function handleError($errno, $errstr, $errfile, $errline, $context = null)
