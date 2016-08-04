@@ -84,17 +84,17 @@ class App
 					SUM(`Population`) AS `Population`,
 					`Cities`,
 					`Languages`
-				FROM `country` `s`
+				FROM `Country` `s`
 
 				LEFT JOIN (
 					SELECT COUNT(*) AS `Cities`, `CountryCode`
-					FROM `city`
+					FROM `City`
 					GROUP BY `CountryCode`
 				) `c` ON (`c`.`CountryCode` = `s`.`Code`)
 
 				LEFT JOIN (
 					SELECT COUNT(*) AS `Languages`, `CountryCode`
-					FROM `countrylanguage`
+					FROM `CountryLanguage`
 					GROUP BY `CountryCode`
 				) `l` ON (`l`.`CountryCode` = `s`.`Code`)
 
