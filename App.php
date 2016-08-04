@@ -99,9 +99,8 @@ class App
 				) `l` ON (`l`.`CountryCode` = `s`.`Code`)
 
 				GROUP BY `Continent`, `Region`
-			) `t` ORDER BY TRIM(`$sort[0]`) $sort[1];
+			) `t` ORDER BY `$sort[0]` $sort[1];
 SQL;
-		// some wierd stuff with sorting alphabetically happens, so we trim for sure
 
 		return $this->_db->fetchAll($sql);
 	}
